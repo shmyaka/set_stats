@@ -1,5 +1,4 @@
 # Установка проекта
-___
 
 ### Скачиваем проект
 - Либо помощью команды __git clone git@github.com:shmyaka/set_stats.git__ (если есть ssh ключ)
