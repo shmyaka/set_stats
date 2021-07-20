@@ -1,0 +1,6 @@
+pymysql
+asyncio
+aiohttp
+requests
+bs4
+pytz

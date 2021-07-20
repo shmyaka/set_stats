@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+        mysql:
+                image: mysql:5.7
+                volumes:
+                        - odlop_db:/var/lib/mysql
+                        - ./my.cnf:/etc/mysql/my.cnf
+                        - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+                environment:
+                        MYSQL_ROOT_PASSWORD: yfrfpetvf1313
+                        MYSQL_DATABASE: stat
+                        MYSQL_USER: observer
+                        MYSQL_PASSWORD: gfyr1313
+                        MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+                # command: >
+                        #  mysql -e "CREATE TABLE `ter` (id INT NOT NULL, name VARCHAR(50));"
+                container_name: mysql
+                networks:
+                        - odlop_net
+                ports:
+                        - "3306:3306"
+        app:
+                image: odlopez/set_stats
+                command: "python3 main.py"
+                working_dir: /app
+                volumes:
+                        - ./logs:/app/logs
+                        - ./vars:/app/vars
+                # restart: always
+                # tty: true
+                depends_on:
+                        - "mysql"
+                networks:
+                        - odlop_net
+
+volumes:
+        odlop_db:
+                external: true
+networks:
+        odlop_net:
+                external: true
