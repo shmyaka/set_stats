@@ -3,7 +3,7 @@ from vars.vars import is_full_weeks, stop_count, start_count
 
 if is_full_weeks:
     # Запускаем сбор статистики для "неполных" групп
-    for x in range(10):
+    while True:
         execute_collecting_statistics(True)
 else:
     # Запускаем сбор статистики для популярных групп
