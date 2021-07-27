@@ -45,6 +45,8 @@ unzip set_stats-master.zip
      	__$user_name__ - логин на сайте [hub.docker.co](https://hub.docker.com/)
     <br>
      	__$image_name__ - имя создаваемого образа
+    <br>
+    (По-умолчанию стоит odlopez/set_stats, если делать другой образ, то также нужно будет заменить имя образа в файле *docker-compose.yml*)
     - Заливаем образ на docker.hub:
     ```
     docker push $user_name/$image_name
