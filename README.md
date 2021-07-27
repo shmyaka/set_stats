@@ -85,7 +85,7 @@ unzip set_stats-master.zip
 
 Находясь в дирректории проекта, вводим команду:
 ```
-docker-compose up
+docker-compose up -d
 ```
 
 Для просмотра лога запущенного docker-compose, вводим команду:
