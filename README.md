@@ -38,7 +38,7 @@ unzip set_stats-master.zip
 	- Заходим в каталог проекта (*set_stats-master, по-умолчанию*)
 	- Создаём docker-образ предназначенный для отпраки на docker-hub:
 	```
-    docker build -t $user_name/$image_name
+    docker build -t $user_name/$image_name .
     ```
     где 
     <br>
