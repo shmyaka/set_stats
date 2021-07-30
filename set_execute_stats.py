@@ -1,3 +1,6 @@
+import pymysql
+import requests as rq
+from config import *
 from weeks_from_db import get_weeks_from_db
 import asyncio
 import aiohttp
@@ -5,7 +8,7 @@ from time import time
 from math import ceil
 from get_not_full_date import get_not_full_date
 from execute_stats import get_execute_stats
-from utils import get_sql_date_from_unix
+from utils import get_unix_from_string_date, get_sql_date_from_unix, add_interval_days
 
 interval_days = 7
 delay = 0.34
@@ -181,6 +184,7 @@ def get_countries_percent(countries):
 
 # Получаем кортеж данных, для занесения их в БД
 def get_data_stats_from_db(connect, group_id, interval, data):
+    print(f'{group_id} data = {data}')
     try:
         _activity = data.get('activity')
         _date_from = get_sql_date_from_unix(data.get('period_from'))
@@ -230,13 +234,21 @@ def get_data_stats_from_db(connect, group_id, interval, data):
 
 
 # Асинхронно заносим данные статистике для заданной группы, в интервале weeks (массив с датами начала статистики)
-async def process_stats_data(connect, session, group_id, is_full_weeks=False):
+async def process_stats_data(connect, session, group_id, is_full_weeks=False, start_date=False, stop_date=False):
     global moment
 
-    if not is_full_weeks:
-        weeks = get_weeks_from_db()
-    else:
+    if is_full_weeks:
         weeks = get_not_full_date(connect, group_id)
+    else:
+        if start_date or stop_date:
+            if start_date and not stop_date:
+                weeks = get_weeks_from_db(start_date=start_date)
+            elif stop_date and not start_date:
+                weeks = get_weeks_from_db(stop_date=stop_date)
+            else:
+                weeks = get_weeks_from_db(start_date=start_date, stop_date=stop_date)
+        else:
+            weeks = get_not_full_date()
 
     q = ceil(len(weeks) / 25)
     print(f'START NUMBER - {group_id}')
@@ -260,6 +272,7 @@ async def process_stats_data(connect, session, group_id, is_full_weeks=False):
                 break
 
             for item_data in stats:
+
                 data = get_data_stats_from_db(connect, group_id, interval_days, item_data)
 
                 if not data:
@@ -287,12 +300,12 @@ async def process_stats_data(connect, session, group_id, is_full_weeks=False):
 
 
 # Асинхронно запускаем функции записи статистики для всех групп из массива айдишников
-async def set_stats(connect, ids_arr, is_full_weeks=False):
+async def set_stats(connect, ids_arr, is_full_weeks=False, start_date=False, stop_date=False):
     tasks = []
 
     async with aiohttp.ClientSession() as session:
         for item_id in ids_arr:
-            task = asyncio.create_task(process_stats_data(connect, session, item_id, is_full_weeks=is_full_weeks))
+            task = asyncio.create_task(process_stats_data(connect, session, item_id, is_full_weeks=is_full_weeks, start_date=start_date, stop_date=stop_date))
             tasks.append(task)
 
         await asyncio.gather(*tasks)

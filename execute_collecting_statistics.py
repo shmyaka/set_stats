@@ -8,7 +8,7 @@ from set_execute_stats import set_stats
 import datetime
 
 
-def run_collecting_statistics(connection, log_name, ids, is_full_weeks=False, k=False):
+def run_collecting_statistics(connection, log_name, ids, is_full_weeks=False, k=False, start_date=False, stop_date=False):
     # Записываем в файл номер очереди и айдишники, которые мы будем проходить
     with open(f'logs/{log_name}---log.txt', 'a') as file:
         file.write(str(datetime.datetime.now()) + '\n')
@@ -25,10 +25,10 @@ def run_collecting_statistics(connection, log_name, ids, is_full_weeks=False, k=
             file.write(str(datetime.datetime.now()) + ' - ' + str(i_arr) + '\n')
 
         # Запускаем функцию сбора статистики для этих 10 групп
-        asyncio.run(set_stats(connection, i_arr, is_full_weeks=is_full_weeks))
+        asyncio.run(set_stats(connection, i_arr, is_full_weeks, start_date=start_date, stop_date=stop_date))
 
 
-def execute_collecting_statistics(is_full_weeks=False, start_count_100=False, stop_count_100=False):
+def execute_collecting_statistics(is_full_weeks=False, start_count_100=False, stop_count_100=False, start_date=False, stop_date=False):
     try:
         # Соединяемся с БД
         connection = pymysql.connect(
@@ -47,14 +47,14 @@ def execute_collecting_statistics(is_full_weeks=False, start_count_100=False, st
 
             if is_full_weeks:
                 ids = get_not_full_stat_ids(10)
-                run_collecting_statistics(connection, log_name, ids, is_full_weeks=is_full_weeks)
+                run_collecting_statistics(connection, log_name, ids, is_full_weeks)
 
             else:
                 for k in range(start_count_100, stop_count_100):
                     # Собираем айдишники очередных 100 популярных групп
                     ids = get_top_100_ids(10, k)
 
-                    run_collecting_statistics(connection, log_name, ids, k=k)
+                    run_collecting_statistics(connection, log_name, ids, k=k, start_date=start_date, stop_date=start_date)
         finally:
             connection.close()
     except Exception as ex:

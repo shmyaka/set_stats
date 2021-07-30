@@ -1,9 +1,9 @@
 from execute_collecting_statistics import execute_collecting_statistics
-from vars.vars import is_full_weeks, stop_count, start_count
+from vars.vars import is_full_weeks, stop_count, start_count, start_date, stop_date
 
 if is_full_weeks:
     # Запускаем сбор статистики для "неполных" групп
-    while True:
+    for x in range(10):
         execute_collecting_statistics(True)
 else:
     # Запускаем сбор статистики для популярных групп
@@ -12,4 +12,4 @@ else:
     # stop_count_100 - это финишный порядковый сотни самых популярных групп.
     # То есть, если мы хотим собрать статистико по 10000 семых популярных групп,
     # то нам нужно ввдодить start_count_100 = 0, stop_count_100 = 101
-    execute_collecting_statistics(start_count_100=start_count, stop_count_100=stop_count)
+    execute_collecting_statistics(start_count_100=start_count, stop_count_100=stop_count, start_date=start_date, stop_date=stop_date)

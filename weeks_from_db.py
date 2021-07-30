@@ -2,7 +2,7 @@ import pymysql
 from config import *
 
 
-def get_weeks_from_db():
+def get_weeks_from_db(start_date=False, stop_date=False):
     try:
         # Соединяемся с БД
         connection = pymysql.connect(
@@ -18,8 +18,19 @@ def get_weeks_from_db():
 
         try:
             with connection.cursor() as cursor:
-                sql = 'SELECT start_date, stop_date FROM `weeks`'
-                cursor.execute(sql)
+                if start_date or stop_date:
+                    if start_date and not stop_date:
+                        sql = 'SELECT start_date, stop_date FROM `weeks` WHERE str_date >= %s'
+                        cursor.execute(sql, start_date)
+                    elif stop_date and not start_date:
+                        sql = 'SELECT start_date, stop_date FROM `weeks` WHERE str_date <= %s'
+                        cursor.execute(sql, stop_date)
+                    else:
+                        sql = 'SELECT start_date, stop_date FROM `weeks` WHERE str_date >= %s AND str_date <= %s'
+                        cursor.execute(sql, (start_date, stop_date))
+                else:
+                    sql = 'SELECT start_date, stop_date FROM `weeks`'
+                    cursor.execute(sql)
 
                 weeks = list(map(lambda x: [x['start_date'], x['stop_date']], cursor.fetchall()))
 
